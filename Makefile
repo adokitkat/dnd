@@ -15,7 +15,9 @@ install: dnd
 	mkdir -p $(HOME)/.config/dnd
 	cp -f dnd.cfg $(HOME)/.config/dnd/dnd.cfg
 	cp -f resources/dnd.xpm $(PREFIX)/share/icons/dnd.xpm
-	cp -f resources/dnd.desktop $(PREFIX)/share/applications/dnd.desktop
+	nimble prepareInstall
+	cp -f dnd.desktop $(PREFIX)/share/applications/dnd.desktop
+	rm -f dnd.desktop
 
 uninstall:
 	rm -f $(PREFIX)/bin/dnd $(HOME)/.config/dnd.cfg $(PREFIX)/share/applications/dnd.desktop $(PREFIX)/share/icons/dnd.xpm 

@@ -36,7 +36,7 @@ Usage: dnd [options] [file...]
   -t, --top            Keep the program window always on top
   -c, --center         Open the program window in the middle of the parent window
   -C, --center-screen  Open the program window in the middle of the screen
-  "-f, --cfg=NAME      Load a different config file
+  -f, --cfg=NAME      Load a different config file
   -p, --preset=NAME    Load different preset from config file
   -v, --version        Show version info
   -h, --help           Show this message

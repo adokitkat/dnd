@@ -1,6 +1,0 @@
-[Desktop Entry]
-Name=DnD
-Exec=~/.local/bin/dnd
-Icon=~/.local/share/icons/dnd.xpm
-Terminal=false
-Type=Application
