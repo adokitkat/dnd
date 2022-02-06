@@ -11,4 +11,4 @@ bin           = @["dnd"]
 # Dependencies
 
 requires "nim >= 1.6.2"
-requires "gintro >= 0.9.6"
+requires "gintro >= 0.9.7"
