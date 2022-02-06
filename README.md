@@ -1,4 +1,7 @@
 # dnd
+
+![dnd logo](resources/dnd.png "dnd logo")
+
 Bi-directional drag and drop source / target 
 
 ## Requirements
