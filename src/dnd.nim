@@ -1,5 +1,5 @@
 import std/[os, parseopt, parsecfg, posix, strformat, strutils, unicode, uri]
-import gintro/[gtk, gdk, gdkpixbuf, glib, gobject, gio]
+import gintro/[gtk, gdk, glib, gobject, gio]
 
 const
   NimblePkgVersion {.strdefine.} = "Unknown"
@@ -17,7 +17,7 @@ var # Program default settings
   center = false
   center_screen = true
   
-  verbose = true
+  verbose = false
   print_path = true
 
 var # Variables
@@ -57,16 +57,14 @@ proc buttonClicked(widget: gtk.Button; dd: DraggableThing) =
 proc dragDataGet(widget: gtk.Button, context: gdk.DragContext, 
                 data: gtk.SelectionData, info: int, time: int, dd: DraggableThing) =
   if info == TargetType.Uri.ord:
-    var
-      uris: seq[cstring]
-      #single_uri_data: array[2, cstring] = [dd.uri.cstring, nil]
+    var uris: seq[cstring]
     
     if drag_all:
       uri_collection[uri_count] = nil
       uris = uri_collection
     else:
-      uris.add dd.uri.cstring
-      uris.add nil
+      #uris.add dd.uri.cstring # TODO: a bug in gintro
+      discard
 
     if verbose:
       if drag_all:
@@ -74,7 +72,7 @@ proc dragDataGet(widget: gtk.Button, context: gdk.DragContext,
       else:
         stderr.write &"Sending as URI: {dd.uri}\n"
 
-    discard data.setUris(uris)
+    discard data.setUris(dd.uri.cstring) # TODO: a bug in gintro
     widget.signalStopEmissionByName("drag-data-get")
   
   elif info == TargetType.Text.ord:
@@ -91,17 +89,16 @@ proc dragEnd(widget: Button; context: gdk.DragContext) =
       succeeded = context.dragDropSucceeded()
       action: DragAction = context.getSelectedAction()
     var action_str: string
-    case cast[DragFlag](action)
-    of DragFlag.copy:
+    if DragFlag.copy in action:
       action_str = "COPY"
-    of DragFlag.move:
+    elif DragFlag.move in action:
       action_str = "MOVE"
-    of DragFlag.link:
+    elif DragFlag.link in action:
       action_str = "LINK"
-    of DragFlag.ask:
+    elif DragFlag.ask in action:
       action_str = "ASK"
     else:
-      action_str = "invalid action"
+      action_str = &"invalid {action}"
     echo &"Selected drop action: {action_str}; Succeeded: {succeeded}"
   #if and_exit:
   #  gtk.main_quit()
@@ -123,7 +120,7 @@ proc addButton(box: var gtk.Box, label: string; dragdata: DraggableThing; typee:
     target_list.addTextTargets(TargetType.Text.ord)
 
   button.dragSourceSet({ModifierFlag.button1}, newSeq[TargetEntry](),
-                      {DragFlag.copy, DragFlag.link, DragFlag.ask}) 
+                      {DragFlag.copy})#, DragFlag.link, DragFlag.ask}) 
   button.dragSourceSetTargetList(target_list)
 
   button.connect("drag-data-get", dragDataGet, dragdata)
@@ -192,30 +189,24 @@ proc dragDataRecieved(widget: gtk.Button, context: gdk.DragContext; x, y: int; d
     if verbose:
       stderr.write "Received URIs\n"
 
+    vbox.remove(widget)
     for uri in uris:
       if uri.isFileUri():
-
-        file = gio.new_gfile_for_uri(uri.cstring)
-        
+        file = uri.cstring.newGFileForUri()
         if print_path:
-          let filename: string  = gio.get_path(file)
+          let filename: string  = file.getPath()
           echo filename
         else:
           echo uri
-        
         if keep:
-          vbox.remove(widget)
-          discard vbox.add_file_button(file)
-          vbox.add_dnd_button()
-          window.show_all()
+          discard vbox.addFileButton(file)
         else:
           echo uri
-          #if keep:
-          vbox.remove(widget)
-          discard vbox.addUriButton(uri)
-          vbox.add_dnd_button()
-          window.show_all()
+          if keep:
+            discard vbox.addUriButton(uri)
 
+    vbox.addDndButton()
+    window.showAll()
 
   if text.len > 0:
     if verbose:
@@ -226,8 +217,8 @@ proc dragDataRecieved(widget: gtk.Button, context: gdk.DragContext; x, y: int; d
       if $text_uri.scheme != "":
         vbox.remove(widget)
         discard vbox.addUriButton($text_uri)
-        vbox.add_dnd_button()
-        window.show_all()
+        vbox.addDndButton()
+        window.showAll()
 
     echo text
 
@@ -297,6 +288,17 @@ proc appActivate(app: Application) =
   window.showAll()
 
 proc parseCfg() =
+  for kind, key, val in commandLineParams().getopt():
+    case kind
+    of cmdEnd: break
+    of cmdArgument: discard
+    of cmdLongOption, cmdShortOption:
+      case key
+      of "cfg", "f":
+        if val != "": cfg_file = val
+      of "preset", "p":
+        if val != "": cfg_preset = val
+
   if cfg_file.fileExists:
     var cfg = cfg_file.loadConfig()
     try: w = cfg.getSectionValue(&"{cfg_preset}", "w").parseInt
@@ -321,8 +323,11 @@ proc argParse() : ArgParseOutput =
         "-k, --keep\t\tKeep dropped files in for a drag out",
         "-t, --top\t\tKeep the program window always on top",
         "-c, --center\t\tOpen the program window in the middle of the parent window",
-        "-C, --center-screen\tOpen program the window in the middle of the screen",
-        "-p, --preset=NAME\tLoad different preset from config file"
+        "-C, --center-screen\tOpen the program window in the middle of the screen",
+        "-f, --cfg=NAME\tLoad a different config file",
+        "-p, --preset=NAME\tLoad a different preset from the config file",
+        "-v, --version\t\tShow version info",
+        "-h, --help\t\tShow this message"
       ]
     for line in help:
       echo "  " & line
@@ -339,9 +344,6 @@ proc argParse() : ArgParseOutput =
     of cmdArgument: input.add key
     of cmdLongOption, cmdShortOption:
       case key
-      of "preset", "p":
-        if val != "":
-          cfg_preset = val
       of "keep", "k":
         k = true
       of "top", "t":
@@ -360,8 +362,8 @@ proc argParse() : ArgParseOutput =
   result = (k, t, c, C)
 
 proc main() =
-  let args = argParse() # Parse arguments (flags)
   parseCfg() # Parse config file
+  let args = argParse() # Parse arguments (flags)
   # Flags override the preset
   keep = args.keep
   always_on_top = args.always_on_top
