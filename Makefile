@@ -1,12 +1,15 @@
 PREFIX = $(HOME)/.local
 MANPREFIX = $(PREFIX)/share/man
 
-.PHONY: all build install uninstall
+.PHONY: all build install run uninstall
 
 all: build
 
 build: src/dnd.nim
 	nimble build
+
+run: dnd
+	./dnd $(ARGS)
 
 install: dnd
 	mkdir -p $(PREFIX)/bin

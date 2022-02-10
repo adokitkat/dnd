@@ -2,13 +2,20 @@
 
 ![dnd logo](resources/dnd.png "dnd logo")
 
-Bi-directional drag and drop source / target 
+Bi-directional drag and drop source / target
+
+- Run `dnd` without arguments and blank window with target area appears
+- Run `dnd` with arguments, e.g. `dnd file1.txt file2.html`, `dnd *` or pipe into it like `find . -name "*.txt" | dnd file2.html` and window with both drag and drop source files & target area appears
+- Configure default options (flags) in `dnd.cfg` file located in the same directory as the executable or `~/.local/share/...` (after installation) so you dont have to type them every time
+- Save different setting presets in `dnd.cfg` and switch between them by running the program like `dnd --preset=Alt`
+- Run `dnd --help` to see all options or look at [usage](#Usage) below
+- You can quit by hitting `Esc` or `Q` key also
 
 ## Requirements
 
- - GTK+ 3/4 (dev packages also)
- - [Nim compiler 1.6.2+](https://nim-lang.org/)
- - [gintro](https://github.com/StefanSalewski/gintro/) (automatically downloaded)
+- GTK+ 3 + dev packages
+- [Nim compiler 1.6.2+](https://nim-lang.org/)
+- [gintro](https://github.com/StefanSalewski/gintro/) (automatically downloaded)
 
 ## Getting Started
 
@@ -17,7 +24,9 @@ Bi-directional drag and drop source / target
 ```sh
 nimble build
 ```
+
 or
+
 ```sh
 make
 ```
@@ -27,29 +36,42 @@ make
 ```sh
 make install
 ```
+
 ```sh
 make uninstall
 ```
 
 ### Usage
-```
+
+```man
 dnd - bi-directional drag and drip source / target
 Usage: dnd [options] [file...]
   -k, --keep           Keep dropped files in for a drag out
   -t, --top            Keep the program window always on top
-  -c, --center         Open the program window in the middle of the parent window
-  -C, --center-screen  Open the program window in the middle of the screen
+  -c, --center-mouse   Center the program on the mouse
+  -C, --center-screen  Center the program in the middle of the screen
   -f, --cfg=NAME       Load a different config file
   -p, --preset=NAME    Load different preset from config file
+  -d, --decorated      Let the program window be decorated by the window manager
+  -o, --opacity=FLOAT  Change the program window opacity
   -v, --version        Show version info
   -h, --help           Show this message
+
+Presets in current loaded dnd.cfg file:
+  [Default]
+  w = 200 # Width
+  h = 200 # Height
+  keep = false
+  always_on_top = true
+  center_mouse = false
+  center_screen = true
+  decorated = true
+  opacity = 1.0
 ```
 
 ## TODO
 
 - Drag all
-- Implement `--center` option
-- Fix cfg path
 
 ## Thanks
 
