@@ -46,16 +46,16 @@ make uninstall
 ```man
 dnd - bi-directional drag and drip source / target
 Usage: dnd [options] [file...]
-  -k, --keep           Keep dropped files in for a drag out
-  -t, --top            Keep the program window always on top
-  -c, --center-mouse   Center the program on the mouse
-  -C, --center-screen  Center the program in the middle of the screen
-  -f, --cfg=NAME       Load a different config file
-  -p, --preset=NAME    Load different preset from config file
-  -d, --decorated      Let the program window be decorated by the window manager
-  -o, --opacity=FLOAT  Change the program window opacity
-  -v, --version        Show version info
-  -h, --help           Show this message
+  -k,       --keep=true          Keep dropped files in for a drag out
+  -t,       --top=true           Keep the program window always on top
+  -c,       --center-mouse=true  Center the program on the mouse
+  -C,       --center-screen=true Center the program in the middle of the screen
+  -f=NAME,  --cfg=NAME           Load a different config file
+  -p=NAME,  --preset=NAME        Load different preset from config file
+  -d,       --decorated=true     Let the program window be decorated by the window manager
+  -o=FLOAT, --opacity=FLOAT      Change the program window opacity
+  -v,       --version            Show version info
+  -h,       --help               Show this message
 
 Presets in current loaded dnd.cfg file:
   [Default]

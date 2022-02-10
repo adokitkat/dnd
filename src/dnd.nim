@@ -348,16 +348,16 @@ proc argParse() : ArgParseOutput =
     echo &"Usage: {app_name} [options] [file...]"
     let help = block:
       [
-        "-k, --keep\t\tKeep dropped files in for a drag out",
-        "-t, --top\t\tKeep the program window always on top",
-        "-c, --center-mouse\tCenter the program on the mouse",
-        "-C, --center-screen\tCenter the program in the middle of the screen",
-        "-f, --cfg=NAME\tLoad a different config file",
-        "-p, --preset=NAME\tLoad a different preset from the config file",
-        "-d, --decorated\tLet the program window be decorated by the window manager",
-        "-o, --opacity=FLOAT\tChange the program window opacity",
-        "-v, --version\t\tShow version info",
-        "-h, --help\t\tShow this message"
+        "-k,       --keep=true\t\t Keep dropped files in for a drag out",
+        "-t,       --top=true\t\t Keep the program window always on top",
+        "-c,       --center-mouse=true\t Center the program on the mouse",
+        "-C,       --center-screen=true Center the program in the middle of the screen",
+        "-f=NAME,  --cfg=NAME\t\t Load a different config file",
+        "-p=NAME,  --preset=NAME\t Load a different preset from the config file",
+        "-d,       --decorated=true\t Let the program window be decorated by the window manager",
+        "-o=FLOAT, --opacity=FLOAT\t Change the program window opacity",
+        "-v,       --version\t\t Show version info",
+        "-h,       --help\t\t Show this message"
       ]
     for line in help:
       echo "  " & line
