@@ -41,6 +41,11 @@ make install
 make uninstall
 ```
 
+- `dnd` executable is installed to `~/.local/bin/dnd`
+- `dnd.cfg` is installed to `~/.config/dnd/dnd.cfg`
+- Desktop entry is installed to `~/.local/share/applications/dnd.desktop`
+- Icon `dnd.xpm` is installed to `~/.local/share/icons/dnd.xpm`
+
 ### Usage
 
 ```man
