@@ -6,7 +6,7 @@ Bi-directional drag and drop source / target
 
 - Run `dnd` without arguments and blank window with target area appears
 - Run `dnd` with arguments, e.g. `dnd file1.txt file2.html`, `dnd *` or pipe into it like `find . -name "*.txt" | dnd file2.html` and window with both drag and drop source files & target area appears
-- Configure default options (flags) in `dnd.cfg` file located in the same directory as the executable or `~/.local/share/...` (after installation) so you dont have to type them every time
+- Configure default options (flags) in `dnd.cfg` file located in the same directory as the executable or `~/.config/dnd/dnd.cfg.` (after installation) so you dont have to type them every time
 - Save different setting presets in `dnd.cfg` and switch between them by running the program like `dnd --preset=Alt`
 - Run `dnd --help` to see all options or look at [usage](#Usage) below
 - You can quit by hitting `Esc` or `Q` key also
@@ -14,7 +14,7 @@ Bi-directional drag and drop source / target
 ## Requirements
 
 - GTK+ 3 + dev packages
-- [Nim compiler 1.6.2+](https://nim-lang.org/)
+- [Nim compiler 1.6.4+](https://nim-lang.org/)
 - [gintro](https://github.com/StefanSalewski/gintro/) (automatically downloaded)
 
 ## Getting Started
