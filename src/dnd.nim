@@ -1,10 +1,14 @@
+# https://github.com/adokitkat/dnd
+# dnd - bi-diractional drag and drop source / target
+# Copyright 2022 Adam Múdry (adokitkat)
+# Thanks to Michael Homer (mwh) and  Dr. Stefan Salewski (StefanSalewski)
+
 import std/[os, parseopt, parsecfg, posix, strformat, strutils, terminal, unicode, uri]
 import gintro/[gtk, gdk, glib, gobject, gio]
 
 const
   NimblePkgVersion {.strdefine.} = "Unknown"
   Version = NimblePkgVersion
-  MAX_SIZE = 1024
 
 var # Program default settings
   app_name = getAppFilename().rsplit("/", maxsplit=1)[1]
@@ -20,6 +24,7 @@ var # Program default settings
   always_on_top = true
   center_mouse = false
   center_screen = true
+  drag_all = true
   
   verbose = false
   print_path = true
@@ -28,10 +33,8 @@ var # Variables
   window: ApplicationWindow 
   vbox: Box
   input: seq[string]
-
-  uri_collection: seq[cstring]
+  uri_collection: seq[string]
   uri_count = 0
-  drag_all = false
   #iconTheme: gtk.IconTheme
   #thumb_size = 96
 
@@ -45,7 +48,7 @@ type # Custom types
     uri: string
   
   ArgParseOutput = tuple
-    keep, always_on_top, center_mouse, center_screen, decorated: bool
+    keep, always_on_top, center_mouse, center_screen, decorated, drag_all: bool
     opacity: float
 
 proc addDndButton(box: var Box) # Forward declaration
@@ -62,14 +65,12 @@ proc buttonClicked(widget: gtk.Button; dd: DraggableThing) =
 proc dragDataGet(widget: gtk.Button, context: gdk.DragContext, 
                 data: gtk.SelectionData, info: int, time: int, dd: DraggableThing) =
   if info == TargetType.Uri.ord:
-    var uris: seq[cstring]
+    var uris: seq[string]
     
     if drag_all:
-      uri_collection[uri_count] = nil
       uris = uri_collection
     else:
-      #uris.add dd.uri.cstring # TODO: a bug in gintro
-      discard
+      uris.add dd.uri
 
     if verbose:
       if drag_all:
@@ -77,7 +78,7 @@ proc dragDataGet(widget: gtk.Button, context: gdk.DragContext,
       else:
         stderr.write &"Sending as URI: {dd.uri}\n"
 
-    discard data.setUris(dd.uri.cstring) # TODO: a bug in gintro
+    discard data.setUris(uris) 
     widget.signalStopEmissionByName("drag-data-get")
   
   elif info == TargetType.Text.ord:
@@ -112,9 +113,7 @@ proc addButton(box: var gtk.Box, label: string; dragdata: DraggableThing; typee:
   #  button = gtk.newButton()
   #else:
   var target_list: gtk.TargetList = button.dragSourceGetTargetList()
-  if target_list != nil:
-    discard target_list.`ref`
-  else:
+  if target_list == nil:
     target_list = gtk.new_target_list(newSeq[TargetEntry]())
 
   if typee == TargetType.Uri.ord:
@@ -123,7 +122,7 @@ proc addButton(box: var gtk.Box, label: string; dragdata: DraggableThing; typee:
     target_list.addTextTargets(TargetType.Text.ord)
 
   button.dragSourceSet({ModifierFlag.button1}, newSeq[TargetEntry](),
-                      {DragFlag.copy})#, DragFlag.link, DragFlag.ask}) 
+                      {DragFlag.copy, DragFlag.link, DragFlag.ask}) 
   button.dragSourceSetTargetList(target_list)
 
   button.connect("drag-data-get", dragDataGet, dragdata)
@@ -132,11 +131,8 @@ proc addButton(box: var gtk.Box, label: string; dragdata: DraggableThing; typee:
   box.add(button)
 
   if drag_all:
-    if uri_count < MAX_SIZE:
-      uri_collection[uri_count] = dragdata.uri.cstring
-    else:
-      stderr.write &"Exceeded maximum number of files for drag_all ({MAX_SIZE})\n"
-  
+    uri_collection.add dragdata.uri
+
   uri_count.inc
   return button
 
@@ -177,7 +173,8 @@ proc makeButton(box: var gtk.Box, filename: string): gtk.Button =
   else:
     result = box.addUriButton(filename)
 
-proc dragDataRecieved(widget: gtk.Button, context: gdk.DragContext; x, y: int; data: gtk.SelectionData; info, time: int) =
+proc dragDataReceived(widget: gtk.Button, context: gdk.DragContext; 
+                      x, y: int; data: gtk.SelectionData; info, time: int) =
   let
     uris: seq[string] = data.getUris()
     text: string = data.getText()
@@ -209,7 +206,7 @@ proc dragDataRecieved(widget: gtk.Button, context: gdk.DragContext; x, y: int; d
     vbox.addDndButton()
     window.showAll()
 
-  if text.len > 0:
+  elif text.len > 0:
     if verbose:
       stderr.write "Received Text\n"
 
@@ -223,7 +220,7 @@ proc dragDataRecieved(widget: gtk.Button, context: gdk.DragContext; x, y: int; d
 
     echo text
 
-  if verbose and uris.len == 0 and text.len == 0:
+  elif verbose:
     stderr.write "Received nothing\n"
 
   context.drag_finish(true, false, time)
@@ -232,29 +229,26 @@ proc dragDrop(widget: gtk.Button; context: DragContext; x, y, time: int) : bool 
   let
     target_list = dragDestGetTargetList(widget)
     list: seq[gdk.Atom] = gdk.listTargets(context)
-  var success: bool = false
 
   for atom in list:
     if target_list.findTargetList(atom):
       widget.dragGetData(context, atom, time)
-      success = true
-  
-  if not success:
-    context.dragFinish(false, false, time)
-  
-  result = true
+      return true
+
+  context.dragFinish(false, false, time)
+  return true
 
 proc addDndButton(box: var gtk.Box) =
   var
     dnd_area = newButton("Drag and drop here")
-    target_list = dnd_area.dragDestGetTargetList()
+    
   
   box.packStart(dnd_area, true, true, 0)
 
-  if target_list.isNil:
+  var target_list = dnd_area.dragDestGetTargetList()
+
+  if target_list == nil:
     target_list = newTargetList(newSeq[TargetEntry]())
-  else:
-    target_list = target_list.`ref`
 
   target_list.addTextTargets(TargetType.Text.ord)
   target_list.addUriTargets(TargetType.Uri.ord)
@@ -266,7 +260,7 @@ proc addDndButton(box: var gtk.Box) =
 
   dnd_area.dragDestSetTargetList(targetlist)
   dnd_area.connect("drag-drop", dragDrop)
-  dnd_area.connect("drag-data-received", dragDataRecieved)
+  dnd_area.connect("drag-data-received", dragDataReceived)
 
 proc quitAction(action: SimpleAction; v: Variant) = quit()
 
@@ -339,7 +333,9 @@ proc parseCfg() =
     except: discard
     try: decorated = cfg.getSectionValue(&"{cfg_preset}", "decorated").toLower.parseBool
     except: discard
-    try: opacity = cfg.getSectionValue(&"{cfg_preset}", "opacity").toLower.parseFloat
+    try: opacity = cfg.getSectionValue(&"{cfg_preset}", "opacity").parseFloat
+    except: discard
+    try: drag_all = cfg.getSectionValue(&"{cfg_preset}", "drag_all").toLower.parseBool
     except: discard
 
 proc argParse() : ArgParseOutput =
@@ -348,6 +344,7 @@ proc argParse() : ArgParseOutput =
     echo &"Usage: {app_name} [options] [file...]"
     let help = block:
       [
+        "-a,       --all=true\t\t Drag all files at once",
         "-k,       --keep=true\t\t Keep dropped files in for a drag out",
         "-t,       --top=true\t\t Keep the program window always on top",
         "-c,       --center-mouse=true\t Center the program on the mouse",
@@ -368,6 +365,7 @@ proc argParse() : ArgParseOutput =
         echo "  " & line
 
   var
+    a = drag_all
     k = keep
     t = always_on_top
     c = center_mouse
@@ -381,6 +379,12 @@ proc argParse() : ArgParseOutput =
     of cmdArgument: input.add key
     of cmdLongOption, cmdShortOption:
       case key
+      of "all", "a":
+        if val != "": 
+          try: a = val.toLower.parseBool
+          except: discard
+        else:
+          a = true
       of "keep", "k":
         if val != "": 
           try: k = val.toLower.parseBool
@@ -422,7 +426,7 @@ proc argParse() : ArgParseOutput =
         echo &"{app_name} {Version}"
         quit 0
 
-  result = (k, t, c, C, d, o)
+  result = (k, t, c, C, d, a, o)
 
 proc main() =
   parseCfg() # Parse config file
@@ -434,6 +438,7 @@ proc main() =
   center_screen = args.center_screen
   decorated = args.decorated
   opacity = args.opacity
+  drag_all = args.drag_all
   # Run the GUI
   let app = newApplication("org.gtk.example")
   app.connect("activate", appActivate)
