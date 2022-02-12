@@ -3,17 +3,20 @@
 # Copyright 2022 Adam Múdry (adokitkat)
 # Thanks to Michael Homer (mwh) and  Dr. Stefan Salewski (StefanSalewski)
 
-import std/[os, parseopt, parsecfg, posix, strformat, strutils, terminal, unicode, uri]
+import std/[os, parseopt, parsecfg, posix, strformat, strutils, terminal, uri]
 import gintro/[gtk, gdk, glib, gobject, gio]
 
 const
+  InstallTypeDefine {.strdefine.} = "Unknown"
   NimblePkgVersion {.strdefine.} = "Unknown"
+  InstallType = strip(InstallTypeDefine)
   Version = NimblePkgVersion
 
 var # Program default settings
   app_name = getAppFilename().rsplit("/", maxsplit=1)[1]
   cfg_file = "dnd.cfg"
-  cfg_path = os.getHomeDir() & ".config/dnd/"
+  cfg_path1 = os.getHomeDir() & &".nimble/pkgs/dnd-{Version}/" # nimble
+  cfg_path2 = os.getHomeDir() & ".config/dnd/" # make
   dnd_cfg = ""
   cfg_preset = "Default" # You can modify presets in dnd.cfg file
   w = 200 # app width
@@ -313,9 +316,12 @@ proc parseCfg() =
       of "preset", "p":
         if val != "": cfg_preset = val
 
-  dnd_cfg = cfg_file
+  dnd_cfg = absolutePath(dnd_cfg)
   if not dnd_cfg.fileExists: # If no config in current dir
-    dnd_cfg = cfg_path & cfg_file # Set path to cfg installation folder
+    when InstallType == "nimble":
+      dnd_cfg = cfg_path1 & cfg_file # Set path to cfg installation folder (nimble)
+    elif InstallType == "make":
+      dnd_cfg = cfg_path2 & cfg_file # Set path to cfg installation folder (makefile)
 
   if dnd_cfg.fileExists: # If config exist try to load it
     var cfg = dnd_cfg.loadConfig()
@@ -357,12 +363,12 @@ proc argParse() : ArgParseOutput =
         "-h,       --help\t\t Show this message"
       ]
     for line in help:
-      echo "  " & line
+      echo line.indent 2
     if dnd_cfg.fileExists:
       echo ""
       echo &"Presets in current loaded dnd.cfg file ({dnd_cfg}):"
       for line in dnd_cfg.lines:
-        echo "  " & line
+        echo line.indent 2
 
   var
     a = drag_all
@@ -424,6 +430,7 @@ proc argParse() : ArgParseOutput =
         quit 0
       of "version", "v": 
         echo &"{app_name} {Version}"
+        echo &"{InstallType} install"
         quit 0
 
   result = (k, t, c, C, d, a, o)

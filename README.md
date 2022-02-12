@@ -20,24 +20,39 @@ Key features:
 ### Build Requirements
 
 - GTK+ 3 dev packages
-- [Nim compiler 1.6.4+](https://nim-lang.org/)
+- [Nim compiler 1.6.2+](https://nim-lang.org/)
 - [gintro](https://github.com/StefanSalewski/gintro/) (automatically downloaded)
 
 ## Getting Started
 
-### Build
+You can install it via 2 methods:
+
+- Nim's package manager `nimble`
+- Manual (Makefile) - Nim not required (when not building)
+
+<details><summary>Nimble</summary>
+<p>
 
 ```sh
-nimble build
+nimble install dnd
 ```
 
-or
+- `dnd` symlink is installed to `~/.nimble/bin/dnd` and executable to `~/.nimble/pkgs/dnd-VERSION/dnd`
+- `dnd.cfg` is installed to `~/.nimble/pkgs/dnd-VERSION/dnd.cfg`
+- Desktop entry is installed to `~/.local/share/applications/dnd.desktop` - `nimble uninstall dnd` cannot remove it automatically?
+- Icon `dnd.xpm` is installed to `~/.nimble/pkgs/dnd-VERSION/resources/dnd.xpm`
 
-```sh
-make
-```
+</p>
+</details>
 
-### Installation / Uninstallation
+<details><summary>Manual (Makefile)</summary>
+<p>
+
+### Download
+
+Download [the latest release](https://github.com/adokitkat/dnd/releases) and unpack it to a folder
+
+### Install / Uninstall
 
 ```sh
 make install
@@ -52,7 +67,10 @@ make uninstall
 - Desktop entry is installed to `~/.local/share/applications/dnd.desktop`
 - Icon `dnd.xpm` is installed to `~/.local/share/icons/dnd.xpm`
 
-### Usage
+</p>
+</details>
+
+## Usage
 
 ```man
 dnd - bi-directional drag and drip source / target

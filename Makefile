@@ -16,8 +16,8 @@ export DESKTOP_ENTRY
 
 all: build
 
-build: src/dnd.nim
-	nimble build
+build: dnd.nim
+	nimble build -d:InstallTypeDefine:make --skipProjCfg
 
 run: dnd
 	./dnd $(ARGS)
@@ -39,5 +39,8 @@ uninstall:
 desktop-entry:
 	echo "$$DESKTOP_ENTRY" > dnd.desktop
 
-tarball: dnd.nimble dnd src/dnd.nim dnd.cfg README.md resources/dnd.xpm resources/dnd.png
-	tar -czvf dnd_$(VERSION)_x64.tar.gz dnd src/dnd.nim dnd.nimble dnd.cfg README.md Makefile resources/dnd.xpm resources/dnd.png
+tarball: build dnd.nimble dnd dnd.nim dnd.cfg README.md resources/dnd.xpm resources/dnd.png
+	tar -czvf dnd_$(VERSION)_x64.tar.gz dnd dnd.nim dnd.nimble dnd.cfg README.md Makefile resources/dnd.xpm resources/dnd.png
+
+clear:
+	rm -f dnd dnd.nims
