@@ -21,7 +21,7 @@ Key features:
 
 - GTK+ 3 dev packages
 - [Nim compiler 1.6.2+](https://nim-lang.org/)
-- [gintro](https://github.com/StefanSalewski/gintro/) (automatically downloaded)
+- [gintro](https://github.com/StefanSalewski/gintro/) (automatically downloaded via nimble)
 
 ## Getting Started
 
@@ -30,8 +30,7 @@ You can install it via 2 methods:
 - Nim's package manager `nimble`
 - Manual (Makefile) - Nim not required (when not building)
 
-<details><summary>Nimble</summary>
-<p>
+### Nimble
 
 ```sh
 nimble install dnd
@@ -42,17 +41,13 @@ nimble install dnd
 - Desktop entry is installed to `~/.local/share/applications/dnd.desktop` - `nimble uninstall dnd` cannot remove it automatically?
 - Icon `dnd.xpm` is installed to `~/.nimble/pkgs/dnd-VERSION/resources/dnd.xpm`
 
-</p>
-</details>
+### Manual (Makefile)
 
-<details><summary>Manual (Makefile)</summary>
-<p>
-
-### Download
+#### Download
 
 Download [the latest release](https://github.com/adokitkat/dnd/releases) and unpack it to a folder
 
-### Install / Uninstall
+#### Install / Uninstall
 
 ```sh
 make install

@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.6.0"
+version       = "0.6.1"
 author        = "Adam Múdry"
 description   = "Drag and drop source / target"
 license       = "GPL-3.0-only"
@@ -12,7 +12,7 @@ installFiles  = @["dnd.cfg", "README.md"]
 # Dependencies
 
 requires "nim >= 1.6.2"
-requires "gintro#head"
+requires "gintro#d9a5fba5a39fd50c2014a175140f7e9c7635a091" # TODO: update when new version is available
 
 import os, strformat
 before build:
