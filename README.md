@@ -94,6 +94,15 @@ Presets in current loaded dnd.cfg file:
   opacity = 1.0
 ```
 
+## Examples
+
+- `dnd` - shows a blank `dnd` window with drag-and-drop area, drag media into it and an URL/URI address is printed to `stdout`
+- `dnd *` - shows a drag area for every file in the folder and drop area at the bottom
+- `dnd .` - shows a drag area for the current folder and drop area at the bottom
+- `dnd file1 file2` - shows a drag area for `file1`, `file2` and drop area at the bottom
+- `find . -name "*.txt" | dnd file2.html` - shows a drag area for `file.html`, every file output by the pipe (every `txt` file in current folder and subfolders) and drop area at the bottom
+- `dnd | while read url; do wget "$url"; done` - drag media from browser (a picture) into `dnd` drop area, it captures the URL address and uses `wget` to download the media to current folder (also in `examples/dnd_wget.sh`) 
+
 ## Thanks
 
 Thanks to [mwh](https://github.com/mwh) and his [dragon](https://github.com/mwh/dragon) for inspiration and [Dr. Stefan Salewski](https://github.com/StefanSalewski) for help with GTK and [gintro](https://github.com/StefanSalewski/gintro/).
