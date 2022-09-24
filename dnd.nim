@@ -15,8 +15,7 @@ const
 var # Program default settings
   app_name = getAppFilename().rsplit("/", maxsplit=1)[1]
   cfg_file = "dnd.cfg"
-  cfg_path1 = os.getHomeDir() & &".nimble/pkgs/dnd-{Version}/" # nimble
-  cfg_path2 = os.getHomeDir() & ".config/dnd/" # make
+  cfg_path = ""
   dnd_cfg = ""
   cfg_preset = "Default" # You can modify presets in dnd.cfg file
   w = 200 # app width
@@ -31,6 +30,11 @@ var # Program default settings
   
   verbose = false
   print_path = true
+
+when InstallType == "nimble":
+  cfg_path = os.getHomeDir() & &".nimble/pkgs/dnd-{Version}/" # nimble
+elif InstallType == "make":
+  cfg_path = os.getHomeDir() & ".config/dnd/" # make
 
 var # Variables
   window: ApplicationWindow 
@@ -47,8 +51,7 @@ type # Custom types
     Uri = 2
   
   DraggableThing = ref object
-    text: string
-    uri: string
+    text, uri: string
   
   ArgParseOutput = tuple
     keep, always_on_top, center_mouse, center_screen, decorated, drag_all: bool
@@ -316,12 +319,9 @@ proc parseCfg() =
       of "preset", "p":
         if val != "": cfg_preset = val
 
-  dnd_cfg = absolutePath(dnd_cfg)
+  dnd_cfg = absolutePath(cfg_file)
   if not dnd_cfg.fileExists: # If no config in current dir
-    when InstallType == "nimble":
-      dnd_cfg = cfg_path1 & cfg_file # Set path to cfg installation folder (nimble)
-    elif InstallType == "make":
-      dnd_cfg = cfg_path2 & cfg_file # Set path to cfg installation folder (makefile)
+    dnd_cfg = cfg_path & cfg_file # Set path to cfg installation folder (makefile)
 
   if dnd_cfg.fileExists: # If config exist try to load it
     var cfg = dnd_cfg.loadConfig()
@@ -430,7 +430,9 @@ proc argParse() : ArgParseOutput =
         quit 0
       of "version", "v": 
         echo &"{app_name} {Version}"
-        echo &"{InstallType} install"
+        echo &"{InstallType} build"
+        echo &"bin path: {os.getAppFilename()}"
+        echo &"cfg path: {dnd_cfg}"
         quit 0
 
   result = (k, t, c, C, d, a, o)

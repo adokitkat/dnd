@@ -27,8 +27,29 @@ Key features:
 
 You can install it via 2 methods:
 
-- Nim's package manager `nimble`
 - Manual (Makefile) - Nim not required (when not building)
+- Nim's package manager `nimble`
+
+### Manual (Makefile)
+
+Download [the latest release](https://github.com/adokitkat/dnd/releases) and unpack it to a folder (`tar -zxf FILENAME`)
+
+To install:
+
+```sh
+make install
+```
+
+To uninstall:
+
+```sh
+make uninstall
+```
+
+- `dnd` executable is installed to `~/.local/bin/dnd`
+- `dnd.cfg` is installed to `~/.config/dnd/dnd.cfg`
+- Desktop entry is installed to `~/.local/share/applications/dnd.desktop`
+- Icon `dnd.xpm` is installed to `~/.local/share/icons/dnd.xpm`
 
 ### Nimble
 
@@ -40,30 +61,6 @@ nimble install dnd
 - `dnd.cfg` is installed to `~/.nimble/pkgs/dnd-VERSION/dnd.cfg`
 - Desktop entry is installed to `~/.local/share/applications/dnd.desktop` - `nimble uninstall dnd` cannot remove it automatically?
 - Icon `dnd.xpm` is installed to `~/.nimble/pkgs/dnd-VERSION/resources/dnd.xpm`
-
-### Manual (Makefile)
-
-#### Download
-
-Download [the latest release](https://github.com/adokitkat/dnd/releases) and unpack it to a folder
-
-#### Install / Uninstall
-
-```sh
-make install
-```
-
-```sh
-make uninstall
-```
-
-- `dnd` executable is installed to `~/.local/bin/dnd`
-- `dnd.cfg` is installed to `~/.config/dnd/dnd.cfg`
-- Desktop entry is installed to `~/.local/share/applications/dnd.desktop`
-- Icon `dnd.xpm` is installed to `~/.local/share/icons/dnd.xpm`
-
-</p>
-</details>
 
 ## Usage
 
