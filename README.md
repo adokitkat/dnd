@@ -20,7 +20,7 @@ Key features:
 ### Build Requirements
 
 - GTK+ 3 dev packages
-- [Nim compiler 1.6.2+](https://nim-lang.org/)
+- [Nim compiler 1.6.12](https://nim-lang.org/) - e.g. use `choosenim 1.6.12` (compilation with newer versions unfortunately fails due to isuue in gintro and/or Nim compiler itself)
 - [gintro](https://github.com/StefanSalewski/gintro/) (automatically downloaded via nimble)
 
 ## Getting Started
